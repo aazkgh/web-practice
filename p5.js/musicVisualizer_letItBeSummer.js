@@ -47,8 +47,8 @@ function setup() {
 
   // 텍스트 높이 계산
   let textHeight = titleGraphics.textAscent() - titleGraphics.textDescent();
-  let textY = height / 2 - textHeight / 2 ;
-  titleGraphics.text("let it be summer", width / 2, textY);
+  let textY = height/2 - textHeight/2;
+  titleGraphics.text("let it be summer", width/2, textY);
 
   snd.play();
 }
@@ -57,31 +57,36 @@ function draw() {
   image(bgGraphics, 0, 0);
   
   let wave = fft.waveform();
+  let spectrum = fft.analyze();
   
   push();
-  translate(width / 2, height / 2);
-  noFill();
+  translate(width/2, height/2);
   
+  // 선형 spectrum 그리기
+  let barWidth = width/spectrum.length;
+  for (let i = 0; i < spectrum.length; i++) {
+    let lineX = map(i, 0, spectrum.length, -width/2, width/2);
+    let lineY =  -height/6 + map(spectrum[i], 0, 255, height/6, 0); 
+    let hueValue = map(i, 0, spectrum.length, 90, 140); 
+    fill(hueValue, 67, 93); 
+    noStroke();
+    rect(lineX, 0, barWidth, lineY); 
+  }
+  
+  // 원형 waveform 그리기
   beginShape();
   for (let i = 0; i < wave.length; i++) {
-    //선형 waveform
-    let lineX = map(i, 0, wave.length, -width / 2, width / 2);
-    let lineY = map(wave[i], -1, 1, -80, 80);
-    let hueValue = map(i, 0, wave.length, 80, 160); 
-    stroke(hueValue, 67, 93); 
-    strokeWeight(1.5);
-    line(lineX, 0, lineX, lineY);
-    
-    //원형 waveform
     let angle = map(i, 0, wave.length, 0, 360);
     let radius = map(wave[i], -1, 1, 80, 320);
     let circleX = radius * cos(angle);
     let circleY = radius * sin(angle);
+    noFill();
     stroke("#B60000");
     strokeWeight(5);
     vertex(circleX, circleY);
   }
   endShape(CLOSE);
+  
   pop(); 
   
   image(titleGraphics, 0, 0);
